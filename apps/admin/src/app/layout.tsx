@@ -1,4 +1,7 @@
+import Header from '@/components/layouts/Header';
 import './global.css';
+import Sidebar from '@/components/layouts/sidebar/Sidebar';
+import LayoutProvider from '@/components/layouts/LayoutProvider';
 
 export const metadata = {
   title: 'Welcome to ',
@@ -10,9 +13,20 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <LayoutProvider>
+          <div className="flex h-screen bg-gray-50">
+            <Sidebar />
+            <div className="flex-1 flex flex-col overflow-hidden">
+              <Header />
+              {children}
+            </div>
+          </div>
+        </LayoutProvider>
+      </body>
     </html>
   );
 }
