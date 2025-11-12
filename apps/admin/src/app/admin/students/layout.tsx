@@ -13,7 +13,7 @@ export default function StudentsLayout({ children }: { children: React.ReactNode
   const pathname = usePathname();
 
   return (
-    <div className="flex gap-6 p-2">
+    <div className="flex gap-2 p-2">
       <aside className="w-48 bg-white bg-white border-r border-gray-200 shadow-sm rounded-md">
         <p className="px-4 py-3 font-semibold text-gray-800 border-b border-gray-200">Student Navigation</p>
         <nav className="flex flex-col overflow-y-auto py-4 px-3 space-y-1">
@@ -33,7 +33,9 @@ export default function StudentsLayout({ children }: { children: React.ReactNode
           })}
         </nav>
       </aside>
-      <section className="flex-1">{children}</section>
+      <section 
+        className="flex-1 overflow-y-auto"
+      >{children}</section>
     </div>
   );
 }

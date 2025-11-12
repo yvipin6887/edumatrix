@@ -20,7 +20,7 @@ const Header: React.FC = () => {
 
     return (
     <header className="bg-white border-b border-gray-200 shadow-sm">
-      <div className="flex items-center justify-between px-6 py-4">
+      <div className="flex items-center justify-between px-6 py-4 gap-2">
         {/* Search Bar */}
         <div className="flex items-center gap-4 flex-1 max-w-2xl">
           <div className="relative flex-1">
