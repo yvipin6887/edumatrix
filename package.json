@@ -5,8 +5,12 @@
   "scripts": {},
   "private": true,
   "dependencies": {
+    "@apollo/server": "^5.1.0",
+    "@as-integrations/express5": "^1.1.2",
+    "@nestjs/apollo": "^13.2.1",
     "@nestjs/common": "^11.0.0",
     "@nestjs/core": "^11.0.0",
+    "@nestjs/graphql": "^13.2.0",
     "@nestjs/platform-express": "^11.0.0",
     "@nestjs/typeorm": "^11.0.0",
     "@tanstack/react-query": "^5.90.7",
@@ -35,8 +39,8 @@
     "@nx/eslint": "22.0.2",
     "@nx/eslint-plugin": "22.0.2",
     "@nx/jest": "22.0.2",
-    "@nx/js": "22.0.2",
-    "@nx/nest": "^22.0.2",
+    "@nx/js": "22.0.3",
+    "@nx/nest": "22.0.3",
     "@nx/next": "22.0.2",
     "@nx/node": "22.0.2",
     "@nx/playwright": "22.0.2",
@@ -84,6 +88,7 @@
     "apps/*",
     "api",
     "api-e2e",
-    "database"
+    "database",
+    "libs/*"
   ]
 }

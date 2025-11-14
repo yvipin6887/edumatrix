@@ -6,15 +6,12 @@ const swcJestConfig = JSON.parse(
   readFileSync(`${__dirname}/.spec.swcrc`, 'utf-8')
 );
 
-// Disable .swcrc look-up by SWC core because we're passing in swcJestConfig ourselves
+// Disable .swcrc look-up by SWC api because we're passing in swcJestConfig ourselves
 swcJestConfig.swcrc = false;
 
 export default {
-  displayName: '@edumatrix/core-e2e',
+  displayName: '@edumatrix/api',
   preset: '../../jest.preset.js',
-  globalSetup: '<rootDir>/src/support/global-setup.ts',
-  globalTeardown: '<rootDir>/src/support/global-teardown.ts',
-  setupFiles: ['<rootDir>/src/support/test-setup.ts'],
   testEnvironment: 'node',
   transform: {
     '^.+\\.[tj]s$': ['@swc/jest', swcJestConfig],

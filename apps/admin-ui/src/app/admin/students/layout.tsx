@@ -4,9 +4,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const studentTabs = [
-  { label: 'Students', route: '/admin-ui/students' },
-  { label: 'New Student', route: '/admin-ui/students/new-student' },
-  { label: 'Promotions', route: '/admin-ui/students/promotions' },
+  { label: 'Students', route: '/admin/students' },
+  { label: 'New Student', route: '/admin/students/new-student' },
+  { label: 'Promotions', route: '/admin/students/promotions' },
 ];
 
 export default function StudentsLayout({ children }: { children: React.ReactNode }) {

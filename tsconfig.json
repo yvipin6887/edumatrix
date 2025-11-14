@@ -10,13 +10,13 @@
       "path": "./apps/admin-ui"
     },
     {
-      "path": "./apps/core-e2e"
+      "path": "./apps/api-e2e"
     },
     {
-      "path": "./apps/core"
+      "path": "./apps/api"
     },
     {
-      "path": "./database"
+      "path": "./libs/shared"
     }
   ]
 }
