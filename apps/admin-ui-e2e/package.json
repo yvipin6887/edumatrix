@@ -1,10 +1,10 @@
 {
-  "name": "@edumatrix/admin-e2e",
+  "name": "@edumatrix/admin-ui-e2e",
   "version": "0.0.1",
   "private": true,
   "nx": {
     "implicitDependencies": [
-      "@edumatrix/admin"
+      "@edumatrix/admin-ui"
     ]
   }
 }

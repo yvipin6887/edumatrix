@@ -108,7 +108,7 @@ const Header: React.FC = () => {
               </div>
               <div className="text-left hidden md:block">
                 <div className="text-sm font-semibold text-gray-800">Admin User</div>
-                <div className="text-xs text-gray-500">admin@school.com</div>
+                <div className="text-xs text-gray-500">admin-ui@school.com</div>
               </div>
               <ChevronDown size={16} className="text-gray-500" />
             </button>
