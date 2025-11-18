@@ -4,10 +4,13 @@
   "include": [],
   "references": [
     {
-      "path": "../../libs/students"
+      "path": "../core"
     },
     {
-      "path": "./tsconfig.app.json"
+      "path": "../shared"
+    },
+    {
+      "path": "./tsconfig.lib.json"
     },
     {
       "path": "./tsconfig.spec.json"

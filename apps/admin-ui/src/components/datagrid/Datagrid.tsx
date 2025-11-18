@@ -69,7 +69,7 @@ showToolbar = true,
   console.log("DataGrid data:", data);
 
   const table = useReactTable({
-    data,
+    data: data?.edges.map(edge => edge.node) ?? [],
     columns,
     state: {
       sorting,

@@ -26,29 +26,43 @@ interface Student {
 }
 
 const GET_STUDENT = gql`
-  query {
-    countries {
-        code
-        name
-        capital
-        emoji
+  query GetStudents {
+    students(first: 10) {
+        edges {
+        cursor
+        node {
+            id
+            firstName
+            lastName
+            email
+            grade
+            status
+        }
+        }
+        pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+        }
+        totalCount
     }
-}
+    }
 `;
 
 export default function StudentDataGrid() {
     const columns: ColumnDef<Student>[] = [
     {
-        accessorKey: 'code',
-        header: 'Code',
+        accessorKey: 'id',
+        header: 'ID',
     },
     {
-        accessorKey: 'name',
-        header: 'Name',
+        accessorKey: 'firstName',
+        header: 'First Name',
     },
     {
-        accessorKey: 'capital',
-        header: 'Capital',
+        accessorKey: 'lastName',
+        header: 'Last Name',
     },
     {
         id: "actions",
@@ -91,7 +105,7 @@ export default function StudentDataGrid() {
             enableSorting={true}
             enableGlobalFilter={true}
             showToolbar={true}
-            keyName='countries'
+            keyName='students'
             query={GET_STUDENT}
         />
     );
