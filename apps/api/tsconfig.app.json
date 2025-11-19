@@ -24,6 +24,12 @@
   ],
   "references": [
     {
+      "path": "../../libs/core/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/shared/tsconfig.lib.json"
+    },
+    {
       "path": "../../libs/students/tsconfig.lib.json"
     }
   ]

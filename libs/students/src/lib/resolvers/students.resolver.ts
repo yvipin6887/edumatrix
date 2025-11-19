@@ -28,10 +28,10 @@ export class StudentsResolver {
 
   @Mutation(() => CreateStudentPayload)
   async createStudent(
-    @Args('input', { type: () => CreateStudentInput }) input: CreateStudentInput
-  ): Promise<any> {
-
+    @Args('input') input: CreateStudentInput
+  ): Promise<CreateStudentPayload> {
     const student = await this.studentsService.create(input);
+    
     return {
       student: student as StudentType,
       message: 'Student created successfully',

@@ -1,4 +1,5 @@
 import { Field, ObjectType, InputType, ID, Int, registerEnumType } from '@nestjs/graphql';
+import { IsEmail, IsNotEmpty, Length } from 'class-validator';
 import { PageInfo } from '@edumatrix/shared';
 
 export enum StudentStatus {
@@ -36,9 +37,6 @@ registerEnumType(Grade, {
 export class StudentType {
   @Field(() => ID)
   id: string;
-
-  @Field()
-  userId: string;
 
   @Field()
   firstName: string;
@@ -113,18 +111,24 @@ export class StudentConnection {
 @InputType()
 export class CreateStudentInput {
   @Field()
+  @IsNotEmpty()
   firstName: string;
 
   @Field()
+  @IsNotEmpty()
   lastName: string;
 
   @Field()
+  @IsNotEmpty()
+  @IsEmail()
   email: string;
 
   @Field()
+  @IsNotEmpty()
   dateOfBirth: Date;
 
   @Field(() => Grade)
+  @IsNotEmpty()
   grade: Grade;
 
   @Field({ nullable: true })

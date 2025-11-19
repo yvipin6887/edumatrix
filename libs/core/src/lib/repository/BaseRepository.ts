@@ -33,7 +33,7 @@ export class BaseRepository<T extends ObjectLiteral> extends Repository<T> {
         // Find all items to get the correct index
         const allItems = await this.find({
           where,
-          order: options?.order || ({ id: 'ASC' } as any),
+          order: options?.order || ({ id: 'DESC' } as any),
           select: ['id'] as any,
         });
         
@@ -65,7 +65,7 @@ export class BaseRepository<T extends ObjectLiteral> extends Repository<T> {
         // Find all items to get the correct index
         const allItems = await this.find({
           where,
-          order: options?.order || ({ id: 'ASC' } as any),
+          order: options?.order || ({ id: 'DESC' } as any),
           select: ['id'] as any,
         });
         

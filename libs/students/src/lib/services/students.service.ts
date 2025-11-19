@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, BadRequestException } from '@nestjs/common'
 import { Student } from '../entities'
 import { InjectRepository } from '@nestjs/typeorm'
 import { StudentsRepository } from '../repositories/students.repository';
@@ -32,6 +32,18 @@ export class StudentsService {
         status: StudentStatus.ACTIVE,
         enrollmentDate: new Date(),
         };
+
+        const exists = await this.studentRepo.findOne({
+            where: { email: input.email },
+        });
+
+        if (exists) {
+            throw new BadRequestException({
+            errors: {
+                email: ['Email already exists'],
+            },
+            });
+        }
 
         let student  = this.studentRepo.create(studentData as any);
 
