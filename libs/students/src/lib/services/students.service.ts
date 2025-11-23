@@ -3,7 +3,7 @@ import { Student } from '../entities'
 import { InjectRepository } from '@nestjs/typeorm'
 import { StudentsRepository } from '../repositories/students.repository';
 import { StudentStatus, Grade, CreateStudentInput } from '../graphql/student.types';
-import { PaginationArgs } from '@edumatrix/shared';
+import { PaginationArgs, SortInput } from '@edumatrix/shared';
 
 @Injectable()
 export class StudentsService {
@@ -17,10 +17,11 @@ export class StudentsService {
         grade?: Grade;
         status?: StudentStatus;
         search?: string;
-        }
+        },
+        sort?: SortInput
     ) {
         
-        return this.studentRepo.paginate();
+        return this.studentRepo.paginate(args, filters, sort);
     }
 
     /**

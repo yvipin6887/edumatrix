@@ -1,104 +1,99 @@
-import { Repository, FindOptionsWhere, FindManyOptions, ObjectLiteral } from 'typeorm';
-import { Connection, Edge, PageInfo, PaginationArgs } from '@edumatrix/shared';
-
+import { Repository, FindOptionsWhere, FindManyOptions, ObjectLiteral, ILike, Brackets  } from 'typeorm';
+import { Connection, Edge, PageInfo, PaginationArgs, SortInput } from '@edumatrix/shared';
 
 export class BaseRepository<T extends ObjectLiteral> extends Repository<T> {
+  protected alias = 't';
+  protected searchableColumns: string[] = [];
+  protected filterParams: any = {};
+  protected qb: any;
+  protected primaryKey: string = 'id';
+  protected sortParams?: SortInput = {field: 'id', order: 'DESC'};
+
+  protected queryBuilder()
+  {
+    return this.createQueryBuilder(this.alias)
+  }
   /**
    * Generic paginate method - works directly with TypeORM
    * Extends Repository so all TypeORM methods are available
    */
-  async paginate(
+  protected async paginate(
     args: PaginationArgs = {},
-    where?: FindOptionsWhere<T> | FindOptionsWhere<T>[],
+    filters?: FindOptionsWhere<T> | FindOptionsWhere<T>[],
+    sort?: SortInput,
     options?: Omit<FindManyOptions<T>, 'where' | 'take' | 'skip'>
   ): Promise<Connection<T>> {
-    // Set defaults
     const first = args.first || 10;
     const after = args.after;
     const last = args.last;
     const before = args.before;
+    
+    this.filterParams = filters || {};
+    this.sortParams = sort || this.sortParams;
+    
+    // 🔥 Start QueryBuilder
+    this.qb = this.queryBuilder();
 
-    // Get total count with filters
-    const totalCount = await this.count({ where } as any);
+    /** ======================
+     *   📌  APPLY FILTERS
+     * ====================== */
+    if (filters) {
+      this.searchFilter();
+      this.applyFilters();
+    }
 
-    let items: T[] = [];
+    /** ======================
+     *  📌 Pagination Logic
+     * ====================== */
     let startIndex = 0;
+    let totalCount = await this.qb.getCount();
 
-    // Forward pagination (first, after)
-    if (first !== undefined && !last) {
+    // ---------------- FORWARD - first + after ----------------
+    if (first && !last) {
       if (after) {
-        // Decode cursor to get ID
         const afterId = this.decodeCursor(after);
+        const condition = this.sortParams.order === 'DESC' ? '<' : '>';
         
-        // Find all items to get the correct index
-        const allItems = await this.find({
-          where,
-          order: options?.order || ({ id: 'DESC' } as any),
-          select: ['id'] as any,
-        });
-        
-        const afterIndex = allItems.findIndex(item => item.id === afterId);
-        startIndex = afterIndex + 1;
-
-        // Get items after cursor
-        items = await this.find({
-          where,
-          skip: startIndex,
-          take: first,
-          ...options,
-        } as any);
-      } else {
-        // No cursor, get first N items
-        items = await this.find({
-          where,
-          take: first,
-          ...options,
-        } as any);
+        this.qb.andWhere(
+          `${this.alias}.${this.primaryKey} ${condition} :cursorValue`,
+          { cursorValue: afterId }
+        );
       }
+
+      this.qb.take(first);
     }
-    // Backward pagination (last, before)
-    else if (last !== undefined) {
+
+    // ---------------- BACKWARD - last + before ----------------
+    if (last && !first) {
       if (before) {
-        // Decode cursor to get ID
         const beforeId = this.decodeCursor(before);
-        
-        // Find all items to get the correct index
-        const allItems = await this.find({
-          where,
-          order: options?.order || ({ id: 'DESC' } as any),
-          select: ['id'] as any,
-        });
-        
-        const beforeIndex = allItems.findIndex(item => item.id === beforeId);
-        startIndex = Math.max(0, beforeIndex - last);
-
-        // Get items before cursor
-        items = await this.find({
-          where,
-          skip: startIndex,
-          take: last,
-          ...options,
-        } as any);
-      } else {
-        // No cursor, get last N items
-        startIndex = Math.max(0, totalCount - last);
-        items = await this.find({
-          where,
-          skip: startIndex,
-          take: last,
-          ...options,
-        } as any);
+        const condition = this.sortParams.order === 'DESC' ? '>' : '<'; // Reverse!
+        this.qb.andWhere(
+          `${this.alias}.${this.primaryKey} ${condition} :cursorValue`,
+          { cursorValue: beforeId }
+        );
       }
+
+      this.qb.take(last);
     }
 
+    // Apply Sorting
+    this.applySorting();
+
+    console.log(this.qb.getSql(), 'Final QB SQL');
+
+    /** ======================
+     *  ⚡ Execute
+     * ====================== */
+    const items = await this.qb.getMany();
+    console.log(items, 'Items');
     // Create edges with cursors
     const edges: Edge<T>[] = items.map(item => ({
-      cursor: this.encodeCursor(item.id),
+      cursor: this.encodeCursor(item[this.primaryKey]),
       node: item,
     }));
 
-    // Create page info
-    const hasNextPage = startIndex + items.length < totalCount;
+    const hasNextPage = edges.length > 0 && (startIndex + edges.length < totalCount);
     const hasPreviousPage = startIndex > 0;
 
     const pageInfo: PageInfo = {
@@ -108,11 +103,40 @@ export class BaseRepository<T extends ObjectLiteral> extends Repository<T> {
       endCursor: edges.length > 0 ? edges[edges.length - 1].cursor : null,
     };
 
-    return {
-      edges,
-      pageInfo,
-      totalCount,
-    };
+    return { edges, pageInfo, totalCount };
+  }
+
+  protected searchFilter(): void 
+  {
+      if (this.filterParams.search && this.filterParams.search.trim()) {
+        this.qb.andWhere(
+          new Brackets(qb1 => {
+            this.searchableColumns.forEach((col, i) => {
+              if (i === 0) qb1.where(`${this.alias}.${col} ILIKE :search`);
+              else qb1.orWhere(`${this.alias}.${col} ILIKE :search`);
+            });
+          }),
+          { search: `%${this.filterParams.search}%` }
+        );
+      }
+  }
+
+  protected applyFilters(): void
+  {
+    Object.keys(this.filterParams).forEach((key) => {
+      if (this.filterParams[key] && key !== 'search') {
+        this.qb.andWhere(`${this.alias}.${key} = :${key}`, { [key]: this.filterParams[key] });
+      }
+    });
+  }
+
+  protected applySorting(): void
+  {
+    if (this.sortParams && this.sortParams.field) {
+      this.qb.orderBy(`${this.alias}.${this.sortParams.field}`, this.sortParams.order || 'DESC');
+    } else {
+      this.qb.orderBy(`${this.alias}.id`, 'DESC');
+    }
   }
 
   /**

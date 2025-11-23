@@ -1,6 +1,8 @@
 import { Field, ObjectType, InputType, ID, Int, registerEnumType } from '@nestjs/graphql';
-import { IsEmail, IsNotEmpty, Length } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsEmpty, Length } from 'class-validator';
 import { PageInfo } from '@edumatrix/shared';
+import { ContactType } from './contact.types';
+import { StudentParentType } from './parent.types';
 
 export enum StudentStatus {
   ACTIVE = 'ACTIVE',
@@ -45,9 +47,6 @@ export class StudentType {
   lastName: string;
 
   @Field()
-  email: string;
-
-  @Field()
   dateOfBirth: Date;
 
   @Field(() => Grade)
@@ -60,22 +59,13 @@ export class StudentType {
   enrollmentDate: Date;
 
   @Field({ nullable: true })
-  parentName?: string;
-
-  @Field({ nullable: true })
-  parentEmail?: string;
-
-  @Field({ nullable: true })
-  parentPhone?: string;
-
-  @Field({ nullable: true })
-  address?: string;
-
-  @Field({ nullable: true })
-  medicalInfo?: string;
-
-  @Field({ nullable: true })
   avatar?: string;
+
+  @Field(() => ContactType, { nullable: true })
+  contact?: ContactType;
+
+  @Field(() => [StudentParentType], { nullable: true })
+  parents?: StudentParentType[];
 
   @Field()
   createdAt: Date;
@@ -83,6 +73,10 @@ export class StudentType {
   @Field()
   updatedAt: Date;
 }
+
+
+
+
 
 // Student Edge
 @ObjectType('StudentEdge')
@@ -186,6 +180,7 @@ export class StudentFilterInput {
   status?: StudentStatus;
 
   @Field({ nullable: true })
+  @IsEmpty()
   search?: string;
 }
 

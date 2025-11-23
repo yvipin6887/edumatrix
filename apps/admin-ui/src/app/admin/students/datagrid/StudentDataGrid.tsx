@@ -1,5 +1,5 @@
 "use client";
-
+import React, {useMemo} from 'react';
 import { DataGrid } from '@/components/datagrid/Datagrid';
 import {SelectFilter } from '@/components/datagrid/filters/column-filter';
 import { ColumnDef } from '@tanstack/react-table';
@@ -26,8 +26,8 @@ interface Student {
 }
 
 const GET_STUDENT = gql`
-  query GetStudents {
-    students(first: 10) {
+  query GetStudents($filters: StudentFilterInput) {
+    students(first: 10, filters: $filters) {
         edges {
         cursor
         node {
@@ -47,11 +47,11 @@ const GET_STUDENT = gql`
         }
         totalCount
     }
-    }
+}
 `;
 
 export default function StudentDataGrid() {
-    const columns: ColumnDef<Student>[] = [
+    const columns: ColumnDef<Student>[] = useMemo(() => [
     {
         accessorKey: 'id',
         header: 'ID',
@@ -95,7 +95,7 @@ export default function StudentDataGrid() {
         );
         },
     },
-    ];
+    ], []);
 
 
     return (

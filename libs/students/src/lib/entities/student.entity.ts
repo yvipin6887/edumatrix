@@ -1,11 +1,13 @@
-import { Field, ObjectType, ID } from '@nestjs/graphql';
-import { Column, Entity, CreateDateColumn, UpdateDateColumn, PrimaryGeneratedColumn } from 'typeorm';
+import { Field, ObjectType, ID, } from '@nestjs/graphql';
+import { Column, Entity, CreateDateColumn, UpdateDateColumn, PrimaryGeneratedColumn, ManyToOne, OneToOne, JoinColumn, OneToMany } from 'typeorm';
 import { StudentStatus, Grade } from '../graphql/student.types';
+import { StudentParent } from './student-parent.entity';
+import { StudentContact } from './student.contact.entity';
 
 @ObjectType()     // For GraphQL
 @Entity()         // For TypeORM
 export class Student {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn()
   id: string;
 
   @Column()
@@ -13,9 +15,6 @@ export class Student {
 
   @Column()
   lastName: string;
-
-  @Column({ unique: true })
-  email: string;
 
   @Column({ type: 'date' })
   dateOfBirth: Date;
@@ -36,27 +35,15 @@ export class Student {
   @Column({ type: 'date' })
   enrollmentDate: Date;
 
-  @Column({ nullable: true })
-  parentName?: string;
-
-  @Column({ nullable: true })
-  parentEmail?: string;
-
-  @Column({ nullable: true })
-  parentPhone?: string;
-
-  @Column({ type: 'text', nullable: true })
-  address?: string;
-
-  @Column({ type: 'json', nullable: true })
-  emergencyContact?: {
-    name: string;
-    phone: string;
-    relationship: string;
-  };
-
   @Column({ type: 'text', nullable: true })
   medicalInfo?: string;
+
+  @OneToOne(() => StudentContact, (contact) => contact.student, { cascade: true })
+  @JoinColumn()
+  contact: StudentContact;
+
+  @OneToMany(() => StudentParent, (p) => p.student, { cascade: true })
+  parents: StudentParent[];
 
   @Column({ nullable: true })
   avatar?: string;

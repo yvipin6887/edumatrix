@@ -2,7 +2,7 @@ import { Resolver, Query, Mutation, Args, Int, ID } from '@nestjs/graphql';
 import { StudentsService } from '../services';
 import { Student } from '../entities';
 import { StudentConnection, StudentType, StudentFilterInput, CreateStudentInput, CreateStudentPayload } from '../graphql/student.types';
-import { PaginationArgs } from '@edumatrix/shared';
+import { SortInput } from '@edumatrix/shared';
 
 @Resolver(() => Student)
 export class StudentsResolver {
@@ -17,10 +17,11 @@ export class StudentsResolver {
     @Args('after', { type: () => String, nullable: true }) after?: string,
     @Args('last', { type: () => Int, nullable: true }) last?: number,
     @Args('before', { type: () => String, nullable: true }) before?: string,
-    @Args('filters', { type: () => StudentFilterInput, nullable: true }) filters?: StudentFilterInput
+    @Args('filters', { type: () => StudentFilterInput, nullable: true }) filters?: any,
+    @Args('sort', { type: () => SortInput, nullable: true }) sort?: any
   ): Promise<StudentConnection> {
     const paginationArgs = { first, after, last, before };
-    const result = await this.studentsService.findAll(paginationArgs, filters);
+    const result = await this.studentsService.findAll(paginationArgs, filters, sort);
     
     // The result from repository is already in the correct format
     return result as StudentConnection;

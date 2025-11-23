@@ -5,20 +5,20 @@ import { DocumentNode } from 'graphql';
 interface UseGraphQLQueryProps<T> {
     key: string;
     query: string | DocumentNode;
-    valiables?: Record<string, any>;
+    variables?: Record<string, any>;
     select?: (data: any) => T;
 }
 
 export function useGraphQLQuery<T>({
     key,
     query,
-    valiables,
+    variables,
     select,
 }: UseGraphQLQueryProps<T>) {
     return useQuery({
-        queryKey: [key, valiables],
+        queryKey: [key, variables],
         queryFn: async () => {
-            const data = await graphQLClient.request(query, valiables);
+            const data = await graphQLClient.request(query, variables);
 
             return select ? select(data[key] ?? []) : data[key] ?? [];
         }
