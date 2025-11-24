@@ -85,13 +85,14 @@ export class BaseRepository<T extends ObjectLiteral> extends Repository<T> {
     /** ======================
      *  ⚡ Execute
      * ====================== */
-    const items = await this.qb.getMany();
-    console.log(items, 'Items');
+    const items = await this.qb.getRawMany();
+    
     // Create edges with cursors
     const edges: Edge<T>[] = items.map(item => ({
       cursor: this.encodeCursor(item[this.primaryKey]),
-      node: item,
+      node: this.formatData(item),
     }));
+    // console.log(items, 'Items');
 
     const hasNextPage = edges.length > 0 && (startIndex + edges.length < totalCount);
     const hasPreviousPage = startIndex > 0;
@@ -106,14 +107,19 @@ export class BaseRepository<T extends ObjectLiteral> extends Repository<T> {
     return { edges, pageInfo, totalCount };
   }
 
+  protected formatData(row: any)
+  {
+    return row
+  }
+
   protected searchFilter(): void 
   {
       if (this.filterParams.search && this.filterParams.search.trim()) {
         this.qb.andWhere(
           new Brackets(qb1 => {
             this.searchableColumns.forEach((col, i) => {
-              if (i === 0) qb1.where(`${this.alias}.${col} ILIKE :search`);
-              else qb1.orWhere(`${this.alias}.${col} ILIKE :search`);
+              if (i === 0) qb1.where(`${col} ILIKE :search`);
+              else qb1.orWhere(`${col} ILIKE :search`);
             });
           }),
           { search: `%${this.filterParams.search}%` }
@@ -125,7 +131,7 @@ export class BaseRepository<T extends ObjectLiteral> extends Repository<T> {
   {
     Object.keys(this.filterParams).forEach((key) => {
       if (this.filterParams[key] && key !== 'search') {
-        this.qb.andWhere(`${this.alias}.${key} = :${key}`, { [key]: this.filterParams[key] });
+        this.qb.andWhere(`${key} = :${key}`, { [key]: this.filterParams[key] });
       }
     });
   }

@@ -34,7 +34,10 @@ const GET_STUDENT = gql`
             id
             firstName
             lastName
-            email
+            contact{
+                email
+                phone
+            }
             grade
             status
         }
@@ -63,6 +66,14 @@ export default function StudentDataGrid() {
     {
         accessorKey: 'lastName',
         header: 'Last Name',
+    },
+    {
+        accessorKey: 'contact.email',
+        header: 'Email',
+    },
+    {
+        accessorKey: 'contact.phone',
+        header: 'Phone',
     },
     {
         id: "actions",
