@@ -82,14 +82,14 @@ export const StudentForm = () => {
     ];
     
     return (
-        <div className="bg-gray-50">
-            <nav className="flex overflow-x-auto border border-gray-200 rounded-lg shadow">
+        <div>
+            <nav className="flex overflow-x-auto border-b border-gray-200 px-8 gap-6 text-center">
                 {sections.map((section) => (
                     <button
                         type='button'
                         onClick={() => setActiveSection(section.id)}
                         key={section.id}
-                        className={`px-4 py-4 text-sm font-medium whitespace-nowrap transition-colors  ${
+                        className={`px-1 py-4 text-sm font-medium whitespace-nowrap transition-colors  ${
                     activeSection === section.id
                       ? 'border-b-2 border-blue-600 text-blue-600 bg-white'
                       : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
@@ -100,7 +100,7 @@ export const StudentForm = () => {
 
         {/* Form */}
         <FormProvider {...methods}>
-            <form onSubmit={methods.handleSubmit(onSubmit, onError)} className="p-8">
+            <form onSubmit={methods.handleSubmit(onSubmit, onError)} className="px-8 py-1">
                 {/* General Information */}
                 {activeSection === 'general' && (
                     <General />

@@ -29,7 +29,7 @@ export default function Input({
   const form = useFormContext();  // will be undefined if RHF not used
 
   const hasRHF = !!form; // check if inside FormProvider
-    // console.log(form.formState.errors['general']['firstName'] || name, 'form.formState.errors')
+    console.log('form.formState.errors')
   return (
     <div>
       {label && <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>}
