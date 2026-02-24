@@ -1,29 +1,10 @@
 "use client";
 import React, {useMemo} from 'react';
 import { DataGrid } from '@/components/datagrid/Datagrid';
-import {SelectFilter } from '@/components/datagrid/filters/column-filter';
 import { ColumnDef } from '@tanstack/react-table';
 import { Edit, Eye, Trash2 } from "lucide-react";
 import { gql } from 'graphql-request';
 import { Button } from '@/components/ui/Button';
-
-interface Student {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  status: "Active" | "Inactive" | "Pending";
-  course: string;
-  department: string;
-  age: number;
-  gender: "Male" | "Female" | "Other";
-  enrollmentDate: string;
-  grade: string;
-  city: string;
-  country: string;
-  guardianName: string;
-  attendancePercentage: number;
-}
 
 const GET_STUDENT = gql`
   query GetStudents($filters: StudentFilterInput) {
@@ -54,7 +35,7 @@ const GET_STUDENT = gql`
 `;
 
 export default function StudentDataGrid() {
-    const columns: ColumnDef<Student>[] = useMemo(() => [
+    const columns: ColumnDef<any, any>[] = useMemo(() => [
     {
         accessorKey: 'id',
         header: 'ID',
@@ -111,6 +92,7 @@ export default function StudentDataGrid() {
 
     return (
         <DataGrid
+            title="Students"
             columns={columns}
             enablePagination={true}
             enableSorting={true}

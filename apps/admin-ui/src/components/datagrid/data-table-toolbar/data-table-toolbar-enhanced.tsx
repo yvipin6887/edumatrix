@@ -1,5 +1,5 @@
 import { Table } from '@tanstack/react-table';
-import { X, Download, Settings2, Filter } from 'lucide-react';
+import { Download, Settings2, Filter } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 interface DataTableToolbarEnhancedProps<TData> {

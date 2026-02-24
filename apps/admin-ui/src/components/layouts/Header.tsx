@@ -5,6 +5,13 @@ import { Settings, Bell, Search, ChevronDown,
   LogOut, User 
 } from 'lucide-react';
 
+interface Notification {
+  id: number;
+  title: string;
+  time: string;
+  unread: boolean;
+}
+
 const Header: React.FC = () => {
     const [showNotifications, setShowNotifications] = useState<boolean>(false);
   const [showUserMenu, setShowUserMenu] = useState<boolean>(false);

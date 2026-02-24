@@ -4,30 +4,22 @@ import React, { useMemo } from 'react';
 import {
   useReactTable,
   getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
   flexRender,
   ColumnDef,
-  SortingState,
-  ColumnFiltersState,
 } from '@tanstack/react-table';
 import {
-  Search,
   ChevronsLeft,
   ChevronLeft,
   ChevronRight,
   ChevronsRight,
 } from 'lucide-react';
-import { useState } from 'react';
 import { DataTableToolbarEnhanced } from './data-table-toolbar/data-table-toolbar-enhanced';
-import { useGraphQLQuery } from '@/hooks/useGraphQLQuery';
 import { DocumentNode } from 'graphql';
 import { useDataGrid } from '@/hooks/useDataGrid';
 
 export interface DataGridProps<TData> {
   title?: string;
-  columns: ColumnDef<TData, any>[];
+  columns: ColumnDef<any, any>[];
   keyName: string;
   query: string | DocumentNode;
   variables?: Record<string, any>;
@@ -56,14 +48,14 @@ function MemoizedDataGrid<TData>({
   enableColumnVisibility = false,
 showToolbar = true,
 }: DataGridProps<TData>) {
-  const { data, isLoading, error, setFiltersData, filters } = useDataGrid<TData>({
+  const { data, setFiltersData, filters } = useDataGrid<TData>({
     key: keyName,
     query,
     select,
   });
 
   const tableData = useMemo(
-    () => data?.edges?.map(edge => edge.node) ?? [],
+    () => data?.edges?.map((edge: any) => edge.node) ?? [],
     [data]
   );
   

@@ -65,12 +65,12 @@ export const StudentForm = () => {
         }
     });
 
-    const onSubmit = (data) => {
+    const onSubmit = (data: any) => {
         console.log('Form submitted:', data);
         alert('Student registration submitted successfully!');
     };
 
-    const onError = (errors) => {
+    const onError = (errors: any) => {
     console.log("Validation Errors:", errors);
     };
 

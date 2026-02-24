@@ -1,9 +1,7 @@
 // steps/ContactInfo.tsx
-import { useFormContext } from "react-hook-form";
 import Input from "@/components/ui/form/Input";
 
 export default function Other() {
-  const { register, formState: { errors } } = useFormContext();
 
   return (
     <div className="space-y-6">
