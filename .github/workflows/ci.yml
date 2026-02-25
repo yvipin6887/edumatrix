@@ -5,11 +5,19 @@ on:
     branches:
       - main
     paths:
-      - 'apps/frontend/**'
+      - 'apps/**'
+      - 'libs/**'
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'apps/**'
       - 'libs/**'
 
 jobs:
-  deploy-frontend:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
