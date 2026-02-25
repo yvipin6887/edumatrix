@@ -16,19 +16,19 @@
 To run the dev server for your app, use:
 
 ```sh
-npx nx dev admin
+npx nx dev admin-ui
 ```
 
 To create a production bundle:
 
 ```sh
-npx nx build admin
+npx nx build admin-ui
 ```
 
 To see all available targets to run for a project, run:
 
 ```sh
-npx nx show project admin
+npx nx show project admin-ui
 ```
 
 These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
@@ -51,6 +51,22 @@ To generate a new library, use:
 
 ```sh
 npx nx g @nx/react:lib mylib
+```
+
+To run backend
+
+```sh
+ npx nx serve api
+```
+
+To geneate module 
+```sh
+npx nx g @nx/nest:module --path=apps/api/src/app/students/students
+```
+
+To generate controller
+```sh
+npx nx g @nx/nest:controller --path=apps/api/src/app/students/controllers/student
 ```
 
 You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.

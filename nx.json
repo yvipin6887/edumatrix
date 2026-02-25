@@ -29,7 +29,8 @@
           "buildDepsName": "build-deps",
           "watchDepsName": "watch-deps"
         }
-      }
+      },
+      "exclude": ["libs/shared/*", "libs/students/*", "libs/core/*"]
     },
     {
       "plugin": "@nx/next/plugin",
@@ -59,7 +60,7 @@
       "options": {
         "targetName": "test"
       },
-      "exclude": ["apps/core-e2e/**/*", "api-e2e/**/*"]
+      "exclude": ["apps/api-e2e/**/*", "api-e2e/**/*"]
     },
     {
       "plugin": "@nx/webpack/plugin",
@@ -70,6 +71,15 @@
         "buildDepsTargetName": "build-deps",
         "watchDepsTargetName": "watch-deps",
         "serveStaticTargetName": "serve-static"
+      }
+    },
+    {
+      "plugin": "@nx/js/typescript",
+      "include": ["libs/shared/*", "libs/students/*", "libs/core/*"],
+      "options": {
+        "typecheck": {
+          "targetName": "typecheck"
+        }
       }
     }
   ],
