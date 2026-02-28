@@ -1,38 +1,41 @@
-name: Deploy
+name: CI
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'apps/**'
-      - 'libs/**'
-
   pull_request:
-    branches:
-      - main
-    paths:
-      - 'apps/**'
-      - 'libs/**'
+    branches: [main]
 
 jobs:
-  deploy:
+  check:
     runs-on: ubuntu-latest
+    env:
+      NX_NO_CLOUD: true
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Setup Node
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
         with:
-          node-version: 18
+          fetch-depth: 0
 
-      - name: Install Dependencies
-        run: npm install
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
 
-      - name: Build Frontend
-        run: npx nx build admin-ui --configuration=production
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Build Backend
-        run: npx nx build api --configuration=production
+      - name: Set NX SHAs for affected
+        uses: nrwl/nx-set-shas@v4
+        with:
+          main-branch-name: main
+
+      # - name: Lint affected
+      #   run: npx nx affected --target=lint --parallel=3
+
+      # - name: Typecheck affected
+      #   run: npx nx affected --target=typecheck --parallel=3
+
+      # - name: Test affected
+      #   run: npx nx affected --target=test --parallel=3 --ci
+
+      - name: Build affected
+        run: npx nx affected --target=build --configuration=production --parallel=3

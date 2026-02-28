@@ -28,6 +28,8 @@ async function bootstrap() {
           acc[err.property] = Object.values(err.constraints);
           return acc;
         }, {});
+
+        //testing
         
         return new BadRequestException({
           statusCode: 400,

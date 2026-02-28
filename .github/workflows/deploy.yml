@@ -1,0 +1,187 @@
+# name: Deploy
+
+# on:
+#   push:
+#     branches: [main]
+
+# env:
+#   AWS_REGION: ${{ secrets.AWS_REGION }}
+#   ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+
+# jobs:
+#   # ─── Detect affected apps ──────────────────────────────────────
+#   setup:
+#     runs-on: ubuntu-latest
+#     outputs:
+#       api-affected: ${{ steps.affected.outputs.api }}
+#       web-affected: ${{ steps.affected.outputs.web }}
+#     steps:
+#       - uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 0
+
+#       - uses: actions/setup-node@v4
+#         with:
+#           node-version: 20
+#           cache: npm
+
+#       - run: npm ci
+
+#       - uses: nrwl/nx-set-shas@v4
+#         with:
+#           main-branch-name: master
+
+#       - name: Detect affected projects
+#         id: affected
+#         run: |
+#           AFFECTED=$(npx nx show projects --affected 2>/dev/null || echo "")
+#           echo "Affected projects: $AFFECTED"
+
+#           # Replace 'api' and 'web' with your actual app names from project.json
+#           if echo "$AFFECTED" | grep -qw "api"; then
+#             echo "api=true" >> $GITHUB_OUTPUT
+#           else
+#             echo "api=false" >> $GITHUB_OUTPUT
+#           fi
+
+#           if echo "$AFFECTED" | grep -qw "web"; then
+#             echo "web=true" >> $GITHUB_OUTPUT
+#           else
+#             echo "web=false" >> $GITHUB_OUTPUT
+#           fi
+
+#   # ─── Deploy NestJS API → ECS ───────────────────────────────────
+#   deploy-api:
+#     needs: setup
+#     if: needs.setup.outputs.api-affected == 'true'
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - uses: actions/checkout@v4
+
+#       - uses: actions/setup-node@v4
+#         with:
+#           node-version: 20
+#           cache: npm
+
+#       - run: npm ci
+
+#       - name: Build NestJS app
+#         run: npx nx build api --configuration=production
+
+#       - name: Configure AWS credentials
+#         uses: aws-actions/configure-aws-credentials@v4
+#         with:
+#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           aws-region: ${{ env.AWS_REGION }}
+
+#       - name: Login to ECR
+#         uses: aws-actions/amazon-ecr-login@v2
+
+#       - name: Build & push Docker image
+#         id: build-image
+#         env:
+#           IMAGE_TAG: ${{ github.sha }}
+#         run: |
+#           docker build \
+#             -f apps/api/Dockerfile \
+#             -t $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG \
+#             -t $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:latest \
+#             .
+
+#           docker push $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
+#           docker push $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:latest
+
+#           echo "image=$ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+#       - name: Download current ECS task definition
+#         run: |
+#           aws ecs describe-task-definition \
+#             --task-definition ${{ secrets.ECS_TASK_DEFINITION }} \
+#             --query taskDefinition > task-definition.json
+
+#       - name: Inject new image into task definition
+#         id: task-def
+#         uses: aws-actions/amazon-ecs-render-task-definition@v1
+#         with:
+#           task-definition: task-definition.json
+#           container-name: api
+#           image: ${{ steps.build-image.outputs.image }}
+
+#       - name: Deploy to ECS Fargate
+#         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+#         with:
+#           task-definition: ${{ steps.task-def.outputs.task-definition }}
+#           service: ${{ secrets.ECS_SERVICE }}
+#           cluster: ${{ secrets.ECS_CLUSTER }}
+#           wait-for-service-stability: true
+
+#   # ─── Deploy Next.js → EC2/ECS or SSR Host ──────────────────────
+#   deploy-web:
+#     needs: setup
+#     if: needs.setup.outputs.web-affected == 'true'
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - uses: actions/checkout@v4
+
+#       - uses: actions/setup-node@v4
+#         with:
+#           node-version: 20
+#           cache: npm
+
+#       - run: npm ci
+
+#       - name: Build Next.js app
+#         run: npx nx build web --configuration=production
+#         env:
+#           NEXT_PUBLIC_API_URL: ${{ secrets.API_URL }}
+
+#       - name: Configure AWS credentials
+#         uses: aws-actions/configure-aws-credentials@v4
+#         with:
+#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           aws-region: ${{ env.AWS_REGION }}
+
+#       - name: Login to ECR
+#         uses: aws-actions/amazon-ecr-login@v2
+
+#       - name: Build & push Next.js Docker image
+#         id: build-web-image
+#         env:
+#           IMAGE_TAG: ${{ github.sha }}
+#         run: |
+#           docker build \
+#             -f apps/web/Dockerfile \
+#             -t $ECR_REGISTRY/${{ secrets.ECR_WEB_REPOSITORY }}:$IMAGE_TAG \
+#             -t $ECR_REGISTRY/${{ secrets.ECR_WEB_REPOSITORY }}:latest \
+#             .
+
+#           docker push $ECR_REGISTRY/${{ secrets.ECR_WEB_REPOSITORY }}:$IMAGE_TAG
+#           docker push $ECR_REGISTRY/${{ secrets.ECR_WEB_REPOSITORY }}:latest
+
+#           echo "image=$ECR_REGISTRY/${{ secrets.ECR_WEB_REPOSITORY }}:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+#       - name: Download ECS task definition
+#         run: |
+#           aws ecs describe-task-definition \
+#             --task-definition ${{ secrets.ECS_WEB_TASK_DEFINITION }} \
+#             --query taskDefinition > web-task-definition.json
+
+#       - name: Inject new image
+#         id: web-task-def
+#         uses: aws-actions/amazon-ecs-render-task-definition@v1
+#         with:
+#           task-definition: web-task-definition.json
+#           container-name: web
+#           image: ${{ steps.build-web-image.outputs.image }}
+
+#       - name: Deploy Next.js to ECS
+#         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+#         with:
+#           task-definition: ${{ steps.web-task-def.outputs.task-definition }}
+#           service: ${{ secrets.ECS_WEB_SERVICE }}
+#           cluster: ${{ secrets.ECS_CLUSTER }}
+#           wait-for-service-stability: true

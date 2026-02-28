@@ -102,9 +102,7 @@ export const StudentForm = () => {
         <FormProvider {...methods}>
             <form onSubmit={methods.handleSubmit(onSubmit, onError)} className="px-8 py-1">
                 {/* General Information */}
-                {activeSection === 'general' && (
-                    <General />
-                )}
+                {activeSection === 'general' && <General />}
 
                 {/* Contact Information */}
                 {activeSection === 'contact' && (
